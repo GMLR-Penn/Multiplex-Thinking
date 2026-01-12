@@ -1,0 +1,434 @@
+Metadata-Version: 2.4
+Name: sglang
+Version: 0.4.9.post6
+Summary: SGLang is yet another fast serving framework for large language models and vision language models.
+License:                                  Apache License
+                                   Version 2.0, January 2004
+                                http://www.apache.org/licenses/
+        
+           TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+        
+           1. Definitions.
+        
+              "License" shall mean the terms and conditions for use, reproduction,
+              and distribution as defined by Sections 1 through 9 of this document.
+        
+              "Licensor" shall mean the copyright owner or entity authorized by
+              the copyright owner that is granting the License.
+        
+              "Legal Entity" shall mean the union of the acting entity and all
+              other entities that control, are controlled by, or are under common
+              control with that entity. For the purposes of this definition,
+              "control" means (i) the power, direct or indirect, to cause the
+              direction or management of such entity, whether by contract or
+              otherwise, or (ii) ownership of fifty percent (50%) or more of the
+              outstanding shares, or (iii) beneficial ownership of such entity.
+        
+              "You" (or "Your") shall mean an individual or Legal Entity
+              exercising permissions granted by this License.
+        
+              "Source" form shall mean the preferred form for making modifications,
+              including but not limited to software source code, documentation
+              source, and configuration files.
+        
+              "Object" form shall mean any form resulting from mechanical
+              transformation or translation of a Source form, including but
+              not limited to compiled object code, generated documentation,
+              and conversions to other media types.
+        
+              "Work" shall mean the work of authorship, whether in Source or
+              Object form, made available under the License, as indicated by a
+              copyright notice that is included in or attached to the work
+              (an example is provided in the Appendix below).
+        
+              "Derivative Works" shall mean any work, whether in Source or Object
+              form, that is based on (or derived from) the Work and for which the
+              editorial revisions, annotations, elaborations, or other modifications
+              represent, as a whole, an original work of authorship. For the purposes
+              of this License, Derivative Works shall not include works that remain
+              separable from, or merely link (or bind by name) to the interfaces of,
+              the Work and Derivative Works thereof.
+        
+              "Contribution" shall mean any work of authorship, including
+              the original version of the Work and any modifications or additions
+              to that Work or Derivative Works thereof, that is intentionally
+              submitted to Licensor for inclusion in the Work by the copyright owner
+              or by an individual or Legal Entity authorized to submit on behalf of
+              the copyright owner. For the purposes of this definition, "submitted"
+              means any form of electronic, verbal, or written communication sent
+              to the Licensor or its representatives, including but not limited to
+              communication on electronic mailing lists, source code control systems,
+              and issue tracking systems that are managed by, or on behalf of, the
+              Licensor for the purpose of discussing and improving the Work, but
+              excluding communication that is conspicuously marked or otherwise
+              designated in writing by the copyright owner as "Not a Contribution."
+        
+              "Contributor" shall mean Licensor and any individual or Legal Entity
+              on behalf of whom a Contribution has been received by Licensor and
+              subsequently incorporated within the Work.
+        
+           2. Grant of Copyright License. Subject to the terms and conditions of
+              this License, each Contributor hereby grants to You a perpetual,
+              worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+              copyright license to reproduce, prepare Derivative Works of,
+              publicly display, publicly perform, sublicense, and distribute the
+              Work and such Derivative Works in Source or Object form.
+        
+           3. Grant of Patent License. Subject to the terms and conditions of
+              this License, each Contributor hereby grants to You a perpetual,
+              worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+              (except as stated in this section) patent license to make, have made,
+              use, offer to sell, sell, import, and otherwise transfer the Work,
+              where such license applies only to those patent claims licensable
+              by such Contributor that are necessarily infringed by their
+              Contribution(s) alone or by combination of their Contribution(s)
+              with the Work to which such Contribution(s) was submitted. If You
+              institute patent litigation against any entity (including a
+              cross-claim or counterclaim in a lawsuit) alleging that the Work
+              or a Contribution incorporated within the Work constitutes direct
+              or contributory patent infringement, then any patent licenses
+              granted to You under this License for that Work shall terminate
+              as of the date such litigation is filed.
+        
+           4. Redistribution. You may reproduce and distribute copies of the
+              Work or Derivative Works thereof in any medium, with or without
+              modifications, and in Source or Object form, provided that You
+              meet the following conditions:
+        
+              (a) You must give any other recipients of the Work or
+                  Derivative Works a copy of this License; and
+        
+              (b) You must cause any modified files to carry prominent notices
+                  stating that You changed the files; and
+        
+              (c) You must retain, in the Source form of any Derivative Works
+                  that You distribute, all copyright, patent, trademark, and
+                  attribution notices from the Source form of the Work,
+                  excluding those notices that do not pertain to any part of
+                  the Derivative Works; and
+        
+              (d) If the Work includes a "NOTICE" text file as part of its
+                  distribution, then any Derivative Works that You distribute must
+                  include a readable copy of the attribution notices contained
+                  within such NOTICE file, excluding those notices that do not
+                  pertain to any part of the Derivative Works, in at least one
+                  of the following places: within a NOTICE text file distributed
+                  as part of the Derivative Works; within the Source form or
+                  documentation, if provided along with the Derivative Works; or,
+                  within a display generated by the Derivative Works, if and
+                  wherever such third-party notices normally appear. The contents
+                  of the NOTICE file are for informational purposes only and
+                  do not modify the License. You may add Your own attribution
+                  notices within Derivative Works that You distribute, alongside
+                  or as an addendum to the NOTICE text from the Work, provided
+                  that such additional attribution notices cannot be construed
+                  as modifying the License.
+        
+              You may add Your own copyright statement to Your modifications and
+              may provide additional or different license terms and conditions
+              for use, reproduction, or distribution of Your modifications, or
+              for any such Derivative Works as a whole, provided Your use,
+              reproduction, and distribution of the Work otherwise complies with
+              the conditions stated in this License.
+        
+           5. Submission of Contributions. Unless You explicitly state otherwise,
+              any Contribution intentionally submitted for inclusion in the Work
+              by You to the Licensor shall be under the terms and conditions of
+              this License, without any additional terms or conditions.
+              Notwithstanding the above, nothing herein shall supersede or modify
+              the terms of any separate license agreement you may have executed
+              with Licensor regarding such Contributions.
+        
+           6. Trademarks. This License does not grant permission to use the trade
+              names, trademarks, service marks, or product names of the Licensor,
+              except as required for reasonable and customary use in describing the
+              origin of the Work and reproducing the content of the NOTICE file.
+        
+           7. Disclaimer of Warranty. Unless required by applicable law or
+              agreed to in writing, Licensor provides the Work (and each
+              Contributor provides its Contributions) on an "AS IS" BASIS,
+              WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+              implied, including, without limitation, any warranties or conditions
+              of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+              PARTICULAR PURPOSE. You are solely responsible for determining the
+              appropriateness of using or redistributing the Work and assume any
+              risks associated with Your exercise of permissions under this License.
+        
+           8. Limitation of Liability. In no event and under no legal theory,
+              whether in tort (including negligence), contract, or otherwise,
+              unless required by applicable law (such as deliberate and grossly
+              negligent acts) or agreed to in writing, shall any Contributor be
+              liable to You for damages, including any direct, indirect, special,
+              incidental, or consequential damages of any character arising as a
+              result of this License or out of the use or inability to use the
+              Work (including but not limited to damages for loss of goodwill,
+              work stoppage, computer failure or malfunction, or any and all
+              other commercial damages or losses), even if such Contributor
+              has been advised of the possibility of such damages.
+        
+           9. Accepting Warranty or Additional Liability. While redistributing
+              the Work or Derivative Works thereof, You may choose to offer,
+              and charge a fee for, acceptance of support, warranty, indemnity,
+              or other liability obligations and/or rights consistent with this
+              License. However, in accepting such obligations, You may act only
+              on Your own behalf and on Your sole responsibility, not on behalf
+              of any other Contributor, and only if You agree to indemnify,
+              defend, and hold each Contributor harmless for any liability
+              incurred by, or claims asserted against, such Contributor by reason
+              of your accepting any such warranty or additional liability.
+        
+           END OF TERMS AND CONDITIONS
+        
+           APPENDIX: How to apply the Apache License to your work.
+        
+              To apply the Apache License to your work, attach the following
+              boilerplate notice, with the fields enclosed by brackets "[]"
+              replaced with your own identifying information. (Don't include
+              the brackets!)  The text should be enclosed in the appropriate
+              comment syntax for the file format. We also recommend that a
+              file or class name and description of purpose be included on the
+              same "printed page" as the copyright notice for easier
+              identification within third-party archives.
+        
+           Copyright 2023-2024 SGLang Team
+        
+           Licensed under the Apache License, Version 2.0 (the "License");
+           you may not use this file except in compliance with the License.
+           You may obtain a copy of the License at
+        
+               http://www.apache.org/licenses/LICENSE-2.0
+        
+           Unless required by applicable law or agreed to in writing, software
+           distributed under the License is distributed on an "AS IS" BASIS,
+           WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           See the License for the specific language governing permissions and
+           limitations under the License.
+        
+Project-URL: Homepage, https://github.com/sgl-project/sglang
+Project-URL: Bug Tracker, https://github.com/sgl-project/sglang/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: Apache Software License
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: aiohttp
+Requires-Dist: requests
+Requires-Dist: tqdm
+Requires-Dist: numpy
+Requires-Dist: IPython
+Requires-Dist: setproctitle
+Provides-Extra: runtime-common
+Requires-Dist: blobfile==3.0.0; extra == "runtime-common"
+Requires-Dist: build; extra == "runtime-common"
+Requires-Dist: compressed-tensors; extra == "runtime-common"
+Requires-Dist: datasets; extra == "runtime-common"
+Requires-Dist: fastapi; extra == "runtime-common"
+Requires-Dist: hf_transfer; extra == "runtime-common"
+Requires-Dist: huggingface_hub; extra == "runtime-common"
+Requires-Dist: interegular; extra == "runtime-common"
+Requires-Dist: llguidance<0.8.0,>=0.7.11; extra == "runtime-common"
+Requires-Dist: modelscope; extra == "runtime-common"
+Requires-Dist: msgspec; extra == "runtime-common"
+Requires-Dist: ninja; extra == "runtime-common"
+Requires-Dist: orjson; extra == "runtime-common"
+Requires-Dist: outlines==0.1.11; extra == "runtime-common"
+Requires-Dist: packaging; extra == "runtime-common"
+Requires-Dist: partial_json_parser; extra == "runtime-common"
+Requires-Dist: pillow; extra == "runtime-common"
+Requires-Dist: prometheus-client>=0.20.0; extra == "runtime-common"
+Requires-Dist: psutil; extra == "runtime-common"
+Requires-Dist: pydantic; extra == "runtime-common"
+Requires-Dist: pynvml; extra == "runtime-common"
+Requires-Dist: pybase64; extra == "runtime-common"
+Requires-Dist: python-multipart; extra == "runtime-common"
+Requires-Dist: pyzmq>=25.1.2; extra == "runtime-common"
+Requires-Dist: sentencepiece; extra == "runtime-common"
+Requires-Dist: soundfile==0.13.1; extra == "runtime-common"
+Requires-Dist: scipy; extra == "runtime-common"
+Requires-Dist: torchao==0.9.0; extra == "runtime-common"
+Requires-Dist: transformers==4.54.0; extra == "runtime-common"
+Requires-Dist: timm==1.0.16; extra == "runtime-common"
+Requires-Dist: uvicorn; extra == "runtime-common"
+Requires-Dist: uvloop; extra == "runtime-common"
+Requires-Dist: xgrammar==0.1.21; extra == "runtime-common"
+Provides-Extra: srt
+Requires-Dist: sglang[runtime_common]; extra == "srt"
+Requires-Dist: sgl-kernel==0.2.7; extra == "srt"
+Requires-Dist: torch==2.7.1; extra == "srt"
+Requires-Dist: torchaudio==2.7.1; extra == "srt"
+Requires-Dist: torchvision==0.22.1; extra == "srt"
+Requires-Dist: cuda-python; extra == "srt"
+Requires-Dist: einops; extra == "srt"
+Requires-Dist: flashinfer_python==0.2.9rc2; extra == "srt"
+Provides-Extra: blackwell
+Requires-Dist: sglang[runtime_common]; extra == "blackwell"
+Requires-Dist: sgl-kernel; extra == "blackwell"
+Requires-Dist: torch==2.7.1; extra == "blackwell"
+Requires-Dist: torchaudio==2.7.1; extra == "blackwell"
+Requires-Dist: torchvision==0.22.1; extra == "blackwell"
+Requires-Dist: cuda-python; extra == "blackwell"
+Requires-Dist: einops; extra == "blackwell"
+Requires-Dist: flashinfer_python==0.2.9rc2; extra == "blackwell"
+Requires-Dist: tiktoken; extra == "blackwell"
+Provides-Extra: srt-hip
+Requires-Dist: sglang[runtime_common]; extra == "srt-hip"
+Requires-Dist: torch; extra == "srt-hip"
+Requires-Dist: petit_kernel==0.0.2; extra == "srt-hip"
+Provides-Extra: srt-xpu
+Requires-Dist: sglang[runtime_common]; extra == "srt-xpu"
+Provides-Extra: srt-hpu
+Requires-Dist: sglang[runtime_common]; extra == "srt-hpu"
+Provides-Extra: srt-cpu
+Requires-Dist: sglang[runtime_common]; extra == "srt-cpu"
+Requires-Dist: einops; extra == "srt-cpu"
+Provides-Extra: srt-npu
+Requires-Dist: sglang[runtime_common]; extra == "srt-npu"
+Provides-Extra: openai
+Requires-Dist: openai>=1.0; extra == "openai"
+Requires-Dist: tiktoken; extra == "openai"
+Provides-Extra: anthropic
+Requires-Dist: anthropic>=0.20.0; extra == "anthropic"
+Provides-Extra: litellm
+Requires-Dist: litellm>=1.0.0; extra == "litellm"
+Provides-Extra: torch-memory-saver
+Requires-Dist: torch_memory_saver>=0.0.8; extra == "torch-memory-saver"
+Provides-Extra: decord
+Requires-Dist: decord; extra == "decord"
+Provides-Extra: test
+Requires-Dist: accelerate; extra == "test"
+Requires-Dist: jsonlines; extra == "test"
+Requires-Dist: matplotlib; extra == "test"
+Requires-Dist: pandas; extra == "test"
+Requires-Dist: peft; extra == "test"
+Requires-Dist: sentence_transformers; extra == "test"
+Provides-Extra: all
+Requires-Dist: sglang[srt]; extra == "all"
+Requires-Dist: sglang[openai]; extra == "all"
+Requires-Dist: sglang[anthropic]; extra == "all"
+Requires-Dist: sglang[litellm]; extra == "all"
+Requires-Dist: sglang[torch_memory_saver]; extra == "all"
+Requires-Dist: sglang[decord]; extra == "all"
+Provides-Extra: all-hip
+Requires-Dist: sglang[srt_hip]; extra == "all-hip"
+Requires-Dist: sglang[openai]; extra == "all-hip"
+Requires-Dist: sglang[anthropic]; extra == "all-hip"
+Requires-Dist: sglang[litellm]; extra == "all-hip"
+Requires-Dist: sglang[decord]; extra == "all-hip"
+Provides-Extra: all-xpu
+Requires-Dist: sglang[srt_xpu]; extra == "all-xpu"
+Requires-Dist: sglang[openai]; extra == "all-xpu"
+Requires-Dist: sglang[anthropic]; extra == "all-xpu"
+Requires-Dist: sglang[litellm]; extra == "all-xpu"
+Requires-Dist: sglang[decord]; extra == "all-xpu"
+Provides-Extra: all-hpu
+Requires-Dist: sglang[srt_hpu]; extra == "all-hpu"
+Requires-Dist: sglang[openai]; extra == "all-hpu"
+Requires-Dist: sglang[anthropic]; extra == "all-hpu"
+Requires-Dist: sglang[litellm]; extra == "all-hpu"
+Requires-Dist: sglang[decord]; extra == "all-hpu"
+Provides-Extra: all-cpu
+Requires-Dist: sglang[srt_cpu]; extra == "all-cpu"
+Requires-Dist: sglang[openai]; extra == "all-cpu"
+Requires-Dist: sglang[anthropic]; extra == "all-cpu"
+Requires-Dist: sglang[litellm]; extra == "all-cpu"
+Requires-Dist: sglang[decord]; extra == "all-cpu"
+Provides-Extra: all-npu
+Requires-Dist: sglang[srt_npu]; extra == "all-npu"
+Requires-Dist: sglang[openai]; extra == "all-npu"
+Requires-Dist: sglang[anthropic]; extra == "all-npu"
+Requires-Dist: sglang[litellm]; extra == "all-npu"
+Requires-Dist: sglang[decord]; extra == "all-npu"
+Provides-Extra: dev
+Requires-Dist: sglang[all]; extra == "dev"
+Requires-Dist: sglang[test]; extra == "dev"
+Provides-Extra: dev-hip
+Requires-Dist: sglang[all_hip]; extra == "dev-hip"
+Requires-Dist: sglang[test]; extra == "dev-hip"
+Provides-Extra: dev-xpu
+Requires-Dist: sglang[all_xpu]; extra == "dev-xpu"
+Requires-Dist: sglang[test]; extra == "dev-xpu"
+Provides-Extra: dev-hpu
+Requires-Dist: sglang[all_hpu]; extra == "dev-hpu"
+Requires-Dist: sglang[test]; extra == "dev-hpu"
+Provides-Extra: dev-cpu
+Requires-Dist: sglang[all_cpu]; extra == "dev-cpu"
+Requires-Dist: sglang[test]; extra == "dev-cpu"
+Dynamic: license-file
+
+<div align="center" id="sglangtop">
+<img src="https://raw.githubusercontent.com/sgl-project/sglang/main/assets/logo.png" alt="logo" width="400" margin="10px"></img>
+
+[![PyPI](https://img.shields.io/pypi/v/sglang)](https://pypi.org/project/sglang)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/sglang)
+[![license](https://img.shields.io/github/license/sgl-project/sglang.svg)](https://github.com/sgl-project/sglang/tree/main/LICENSE)
+[![issue resolution](https://img.shields.io/github/issues-closed-raw/sgl-project/sglang)](https://github.com/sgl-project/sglang/issues)
+[![open issues](https://img.shields.io/github/issues-raw/sgl-project/sglang)](https://github.com/sgl-project/sglang/issues)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/sgl-project/sglang)
+
+</div>
+
+--------------------------------------------------------------------------------
+
+| [**Blog**](https://lmsys.org/blog/2025-05-05-large-scale-ep/)
+| [**Documentation**](https://docs.sglang.ai/)
+| [**Join Slack**](https://slack.sglang.ai/)
+| [**Join Bi-Weekly Development Meeting**](https://meeting.sglang.ai/)
+| [**Roadmap**](https://github.com/sgl-project/sglang/issues/4042)
+| [**Slides**](https://github.com/sgl-project/sgl-learning-materials?tab=readme-ov-file#slides) |
+
+## News
+- [2025/06] 🔥 SGLang, the high-performance serving infrastructure powering trillions of tokens daily, has been awarded the third batch of the Open Source AI Grant by a16z ([a16z blog](https://a16z.com/advancing-open-source-ai-through-benchmarks-and-bold-experimentation/)).
+- [2025/06] 🔥 Deploying DeepSeek on GB200 NVL72 with PD and Large Scale EP (Part I): 2.7x Higher Decoding Throughput ([blog](https://lmsys.org/blog/2025-06-16-gb200-part-1/)).
+- [2025/05] 🔥 Deploying DeepSeek with PD Disaggregation and Large-scale Expert Parallelism on 96 H100 GPUs ([blog](https://lmsys.org/blog/2025-05-05-large-scale-ep/)).
+- [2025/03] Supercharge DeepSeek-R1 Inference on AMD Instinct MI300X ([AMD blog](https://rocm.blogs.amd.com/artificial-intelligence/DeepSeekR1-Part2/README.html))
+- [2025/03] SGLang Joins PyTorch Ecosystem: Efficient LLM Serving Engine ([PyTorch blog](https://pytorch.org/blog/sglang-joins-pytorch/))
+- [2024/12] v0.4 Release: Zero-Overhead Batch Scheduler, Cache-Aware Load Balancer, Faster Structured Outputs ([blog](https://lmsys.org/blog/2024-12-04-sglang-v0-4/)).
+- [2024/07] v0.2 Release: Faster Llama3 Serving with SGLang Runtime (vs. TensorRT-LLM, vLLM) ([blog](https://lmsys.org/blog/2024-07-25-sglang-llama3/)).
+
+<details>
+<summary>More</summary>
+
+- [2025/02] Unlock DeepSeek-R1 Inference Performance on AMD Instinct™ MI300X GPU ([AMD blog](https://rocm.blogs.amd.com/artificial-intelligence/DeepSeekR1_Perf/README.html))
+- [2025/01] SGLang provides day one support for DeepSeek V3/R1 models on NVIDIA and AMD GPUs with DeepSeek-specific optimizations. ([instructions](https://github.com/sgl-project/sglang/tree/main/benchmark/deepseek_v3), [AMD blog](https://www.amd.com/en/developer/resources/technical-articles/amd-instinct-gpus-power-deepseek-v3-revolutionizing-ai-development-with-sglang.html), [10+ other companies](https://x.com/lmsysorg/status/1887262321636221412))
+- [2024/10] The First SGLang Online Meetup ([slides](https://github.com/sgl-project/sgl-learning-materials?tab=readme-ov-file#the-first-sglang-online-meetup)).
+- [2024/09] v0.3 Release: 7x Faster DeepSeek MLA, 1.5x Faster torch.compile, Multi-Image/Video LLaVA-OneVision ([blog](https://lmsys.org/blog/2024-09-04-sglang-v0-3/)).
+- [2024/02] SGLang enables **3x faster JSON decoding** with compressed finite state machine ([blog](https://lmsys.org/blog/2024-02-05-compressed-fsm/)).
+- [2024/01] SGLang provides up to **5x faster inference** with RadixAttention ([blog](https://lmsys.org/blog/2024-01-17-sglang/)).
+- [2024/01] SGLang powers the serving of the official **LLaVA v1.6** release demo ([usage](https://github.com/haotian-liu/LLaVA?tab=readme-ov-file#demo)).
+
+</details>
+
+## About
+SGLang is a fast serving framework for large language models and vision language models.
+It makes your interaction with models faster and more controllable by co-designing the backend runtime and frontend language.
+The core features include:
+
+- **Fast Backend Runtime**: Provides efficient serving with RadixAttention for prefix caching, zero-overhead CPU scheduler, prefill-decode disaggregation, speculative decoding, continuous batching, paged attention, tensor parallelism, pipeline parallelism, expert parallelism, structured outputs, chunked prefill, quantization (FP8/INT4/AWQ/GPTQ), and multi-lora batching.
+- **Flexible Frontend Language**: Offers an intuitive interface for programming LLM applications, including chained generation calls, advanced prompting, control flow, multi-modal inputs, parallelism, and external interactions.
+- **Extensive Model Support**: Supports a wide range of generative models (Llama, Gemma, Mistral, Qwen, DeepSeek, LLaVA, etc.), embedding models (e5-mistral, gte, mcdse) and reward models (Skywork), with easy extensibility for integrating new models.
+- **Active Community**: SGLang is open-source and backed by an active community with industry adoption.
+
+## Getting Started
+- [Install SGLang](https://docs.sglang.ai/start/install.html)
+- [Quick Start](https://docs.sglang.ai/backend/send_request.html)
+- [Backend Tutorial](https://docs.sglang.ai/backend/openai_api_completions.html)
+- [Frontend Tutorial](https://docs.sglang.ai/frontend/frontend.html)
+- [Contribution Guide](https://docs.sglang.ai/references/contribution_guide.html)
+
+## Benchmark and Performance
+Learn more in the release blogs: [v0.2 blog](https://lmsys.org/blog/2024-07-25-sglang-llama3/), [v0.3 blog](https://lmsys.org/blog/2024-09-04-sglang-v0-3/), [v0.4 blog](https://lmsys.org/blog/2024-12-04-sglang-v0-4/), [Large-scale expert parallelism](https://lmsys.org/blog/2025-05-05-large-scale-ep/).
+
+## Roadmap
+[Development Roadmap (2025 H2)](https://github.com/sgl-project/sglang/issues/7736)
+
+## Adoption and Sponsorship
+SGLang has been deployed at large scale, generating trillions of tokens in production each day. It is trusted and adopted by a wide range of leading enterprises and institutions, including xAI, AMD, NVIDIA, Intel, LinkedIn, Cursor, Oracle Cloud, Google Cloud, Microsoft Azure, AWS, Atlas Cloud, Voltage Park, Nebius, DataCrunch, Novita, InnoMatrix, MIT, UCLA, the University of Washington, Stanford, UC Berkeley, Tsinghua University, Jam & Tea Studios, Baseten, and other major technology organizations across North America and Asia. As an open-source LLM inference engine, SGLang has become the de facto industry standard, with deployments running on over 1,000,000 GPUs worldwide.
+
+<img src="https://raw.githubusercontent.com/sgl-project/sgl-learning-materials/refs/heads/main/slides/adoption.png" alt="logo" width="800" margin="10px"></img>
+
+## Contact Us
+
+For enterprises interested in adopting or deploying SGLang at scale, including technical consulting, sponsorship opportunities, or partnership inquiries, please contact us at contact@sglang.ai.
+
+## Acknowledgment
+We learned the design and reused code from the following projects: [Guidance](https://github.com/guidance-ai/guidance), [vLLM](https://github.com/vllm-project/vllm), [LightLLM](https://github.com/ModelTC/lightllm), [FlashInfer](https://github.com/flashinfer-ai/flashinfer), [Outlines](https://github.com/outlines-dev/outlines), and [LMQL](https://github.com/eth-sri/lmql).

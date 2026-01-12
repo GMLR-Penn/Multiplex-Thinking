@@ -1,0 +1,147 @@
+trainer:
+  nnodes: 1
+  n_gpus_per_node: 8
+  device: cuda
+
+data:
+  path: ~/data/rlhf/math/test.parquet
+  prompt_key: prompt
+  n_samples: 5
+  output_path: /opt/tiger/math_Qwen2-7B-Instruct.parquet
+  batch_size: 128
+
+model:
+  path: ~/models/Qwen2-7B-Instruct
+  external_lib: null
+rollout:
+  _target_: verl.workers.config.RolloutConfig
+  name: vllm
+  mode: sync # sync: LLM, async: AsyncLLM
+  temperature: 1.0
+  top_k: 50 # 0 for hf rollout, -1 for vllm rollout
+  top_p: 0.7
+  prompt_length: 1536
+  response_length: 512
+  # for vllm rollout
+  dtype: bfloat16 # should align with FSDP
+  gpu_memory_utilization: 0.5
+  ignore_eos: False
+  enforce_eager: True
+  free_cache_engine: True
+  load_format: auto
+  tensor_model_parallel_size: 1
+  max_num_batched_tokens: 8192
+  max_model_len: null
+  max_num_seqs: 1024
+  log_prob_micro_batch_size: null # will be deprecated, use log_prob_micro_batch_size_per_gpu
+  log_prob_micro_batch_size_per_gpu: 8
+  # for hf rollout
+  do_sample: True
+  disable_log_stats: True
+  enable_chunked_prefill: True
+  n: 1
+  # support logging rollout prob for debugging purpose
+  calculate_log_probs: False
+  multi_stage_wake_up: false
+  enable_soft_thinking: False
+  enable_mixed_rollout: False
+  max_topk: 5
+  used_topk: 2
+  enable_entropy_mask: False
+  entropy_mask_threshold: 0.0
+  after_thinking_temperature: 0.6
+  after_thinking_top_p: 0.95
+  after_thinking_top_k: 30
+  after_thinking_min_p:  0.0
+  dirichlet_alpha: 1.0e20
+  enable_gumbel: False 
+  enable_max_topk: False
+  gumbel_tau: 1.0
+  enable_replacement: True
+  enable_gumbel_after_thinking: False
+  enable_unweighting: False
+  early_stopping_entropy_threshold:  0.1
+  early_stopping_length_threshold:  256
+  think_end_str: </think>
+  mem_fraction_static: 0.8
+  engine_kwargs:
+
+      # for vllm
+      vllm:
+
+        # Swap space (in GB) used by inference engine. null uses default (e.g., 4 GB).
+        swap_space: null
+
+        # Whether to disable the preprocessor cache for multimodel models.
+        disable_mm_preprocessor_cache: False
+
+      # for sglang
+      sglang:
+
+        # The attention backend for sglang engine. Options: flashinfer, triton, flashmla, null for default.
+
+        attention_backend: flashinfer
+
+  multi_turn:
+
+      # set to True for multi-turn tool interaction tasks; should set rollout.name to sglang as well
+      enable: False
+
+      # null for no limit (default max_length // 3)
+      max_assistant_turns: null
+
+      # null for no tool
+      tool_config_path: null
+
+      # null for no limit (default max_length // 3)
+      max_user_turns: null
+
+      # null for no interaction
+      interaction_config_path: null
+
+      # null for default callback
+      completion_callback: null
+
+      # - When set to True, the model's default chat template is used for multi-turn rollout, which typically matches production behavior.
+      # - When set to False, the token ids recorded for training are used instead; unlike the default chat template, these always include the model's full output,
+      #   which may contain additional content such as reasoning content. This maintains the consistency between training and rollout, but it will lead to longer prompts.
+      use_inference_chat_template: False
+
+      # Tokenization is performed turn by turn and the resulting token ids are concatenated to form the full conversation.
+      # To ensure this matches the result of tokenizing the entire conversation at once, a sanity check is run at the end of each multi-turn rollout to compare the two sets of token ids.
+      # Some models are known to produce different tokenization results when tokenizing turn by turn vs. all at once. aThis behavior has already been validated for them.
+      # To reduce excessive warnings, you can turn off the sanity check for these models if you are using their default chat template:
+      # Qwen/QwQ-32B, Qwen/Qwen3-xxB
+      # - off: disable tokenization sanity check
+      # - strict: enable strict tokenization sanity check (default)
+      # - ignore_strippable: ignore strippable tokens when checking tokenization sanity
+      tokenization_sanity_check_mode: strict
+
+      # Format of the multi-turn interaction. Options: hermes, llama3_json, ...
+      format: hermes
+    # profiler configs
+  profiler:
+
+    # True for each task has its own database, False for all tasks in one training step share one database.
+    discrete: False
+
+    # Whether to profile all ranks.
+    all_ranks: False
+
+    # The ranks that will be profiled. null or [0,1,...]
+    ranks: null
+
+  enable_sleep_hack: False
+actor:
+  strategy: fsdp  # This is for backward-compatibility
+  ulysses_sequence_parallel_size: 1 # sp size
+  entropy_from_logits_with_chunking: False  # calculate entropy with chunking to reduce memory peak
+  entropy_checkpointing: False  # recompute entropy
+  fsdp_config:
+    fsdp_size: -1
+    forward_prefetch: False  # FSDP1 forward_prefetch configuration
+
+ray_kwargs:
+  ray_init:
+    num_cpus: null # `None` means using all CPUs, which might cause hang if limited in systems like SLURM. Please set to a number allowed then.
+  timeline_json_file: null
