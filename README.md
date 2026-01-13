@@ -14,6 +14,18 @@
 <!-- [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)  -->
 
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Getting Started](#getting-started-)
+  - [Environment Setup](#environment-setup)
+  - [Base Docker Image](#base-docker-image)
+  - [Dependencies](#dependencies)
+  - [Setup](#setup)
+- [Training and evaluation](#training-and-evaluation)
+- [Implementation Credits](#implementation-credits)
+- [Checkpoints](#-checkpoints)
+
 ## Overview
 
 This repository contains the **official implementation** of **Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge**.
