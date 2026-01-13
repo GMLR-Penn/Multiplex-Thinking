@@ -1,6 +1,9 @@
 <div align="center">
 
-# Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge
+<h1 style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0;">
+  <img src="figs/logo_clip.png" alt="logo" height="50" style="display: block;" />
+  <span>Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge</span>
+</h1>
 
 </div>
 
