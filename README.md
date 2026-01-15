@@ -77,7 +77,7 @@ Train and evaluate by running:
 bash scripts/train.sh \
   --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B \
   --exp_name your_exp_name \
-  --enable_unweighting True \ # this set to True means average embedding;this set to False to enable weighted_embedding
+  --enable_unweighting True \ # True for average embedding; False for weighted embedding
   --total_training_steps 300 \
   --train_batch_size 128 \
   --max_token_len_per_gpu 32768 \
