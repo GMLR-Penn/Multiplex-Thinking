@@ -32,12 +32,8 @@ while [[ $# -gt 0 ]]; do
             MAX_TOKEN_LEN_PER_GPU="$2"
             shift 2
             ;;
-        --max_topk)
-            MAX_TOPK="$2"
-            shift 2
-            ;;
-        --used_topk)
-            USED_TOPK="$2"
+        --multiplex_width)
+            MULTIPLEX_WIDTH="$2"
             shift 2
             ;;
         --loss_mode)
@@ -199,12 +195,8 @@ if [ -z "$MAX_TOKEN_LEN_PER_GPU" ]; then
     MAX_TOKEN_LEN_PER_GPU=65536
 fi
 
-if [ -z "$MAX_TOPK" ]; then
-    MAX_TOPK=5
-fi
-
-if [ -z "$USED_TOPK" ]; then
-    USED_TOPK=5
+if [ -z "$MULTIPLEX_WIDTH" ]; then
+    MULTIPLEX_WIDTH=3
 fi
 
 if [ -z "$LOSS_MODE" ]; then
@@ -419,8 +411,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.val_kwargs.temperature=$TEMP \
     actor_rollout_ref.rollout.enable_soft_thinking=$ENABLE_SOFT_THINK \
     actor_rollout_ref.rollout.enable_mixed_rollout=$ENABLE_MIXED_ROLLOUT \
-    actor_rollout_ref.rollout.max_topk=$MAX_TOPK \
-    actor_rollout_ref.rollout.used_topk=$USED_TOPK \
+    actor_rollout_ref.rollout.max_topk=$MULTIPLEX_WIDTH \
+    actor_rollout_ref.rollout.used_topk=$MULTIPLEX_WIDTH \
     actor_rollout_ref.rollout.top_p=$TOP_P \
     actor_rollout_ref.rollout.early_stopping_entropy_threshold=$EARLY_STOPPING_ENTROPY_THRESHOLD \
     actor_rollout_ref.rollout.early_stopping_length_threshold=$EARLY_STOPPING_LENGTH_THRESHOLD \
@@ -449,8 +441,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.val_kwargs.do_sample=$DO_SAMPLE \
     actor_rollout_ref.rollout.val_kwargs.early_stopping_entropy_threshold=$EARLY_STOPPING_ENTROPY_THRESHOLD \
     actor_rollout_ref.rollout.val_kwargs.early_stopping_length_threshold=$EARLY_STOPPING_LENGTH_THRESHOLD \
-    actor_rollout_ref.rollout.val_kwargs.max_topk=$MAX_TOPK \
-    actor_rollout_ref.rollout.val_kwargs.used_topk=$USED_TOPK \
+    actor_rollout_ref.rollout.val_kwargs.max_topk=$MULTIPLEX_WIDTH \
+    actor_rollout_ref.rollout.val_kwargs.used_topk=$MULTIPLEX_WIDTH \
     actor_rollout_ref.rollout.val_kwargs.top_p=$TOP_P \
     actor_rollout_ref.actor.entropy_coeff=0.0 \
     actor_rollout_ref.rollout.gpu_memory_utilization=${GPU_MEMORY_UTILIZATION} \

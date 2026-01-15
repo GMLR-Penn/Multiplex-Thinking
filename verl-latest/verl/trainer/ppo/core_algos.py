@@ -902,8 +902,8 @@ def compute_policy_loss_vanilla(
     return pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower
 
 
-@register_policy_loss("soft_thinking_vanilla")
-def compute_soft_thinking_vanilla_policy_loss(
+@register_policy_loss("multiplex_thinking")
+def compute_multiplex_thinking_policy_loss(
     old_log_prob, #shape: (bsz, response_length,max_topk)
     log_prob, #shape: (bsz, response_length,max_topk)
     advantages,

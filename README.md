@@ -71,8 +71,28 @@ bash setup.sh
 
 ## Training and evaluation
 
-Train and evaluate by running 
-`bash scripts/train.sh` or `bash scripts/eval.sh`
+Train and evaluate by running:
+
+```
+bash scripts/train.sh \
+  --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B \
+  --exp_name your_exp_name \
+  --enable_unweighting True \ # this set to True means average embedding;this set to False to enable weighted_embedding
+  --total_training_steps 300 \
+  --train_batch_size 128 \
+  --max_token_len_per_gpu 32768 \
+  --loss_mode multiplex_thinking \
+  --multiplex_width 3 \
+  --n_gpus_per_node 8 \
+  --max_response_length 4096 \
+  --val_rollout_n 4 \
+  --val_dataset math \
+  --val_batch_size 1024
+```
+
+Or run evaluation:
+
+`bash scripts/eval.sh`
 
 ## Implementation Credits
 This codebase is built upon and inspired by the exceptional work from the following projects:

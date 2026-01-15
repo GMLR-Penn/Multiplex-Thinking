@@ -680,8 +680,8 @@ class DataParallelPPOActor(BasePPOActor):
                             )
                         answer_token_ratio = None
                                                                                                                                                     clip_ratio,clip_ratio_low,clip_ratio_high,clip_ratio_c,loss_agg_mode,soft_thinking_topk_probs,self.config)
-                    elif loss_mode == "soft_thinking_vanilla":
-                        assert self.config.enable_soft_thinking, "enable_soft_thinking is required for soft_thinking_vanilla loss mode"
+                    elif loss_mode == "multiplex_thinking":
+                        assert self.config.enable_soft_thinking, "enable_soft_thinking is required for multiplex_thinking loss mode"
                         pg_loss, pg_clipfrac, ppo_kl, pg_clipfrac_lower, answer_token_ratio, response_mask_ratio = policy_loss_fn(old_log_prob=old_log_prob,
                             log_prob=log_prob,
                             advantages=advantages,
@@ -696,7 +696,7 @@ class DataParallelPPOActor(BasePPOActor):
                             recompute_topk_probs=self.config.optim.recompute_topk_probs,)
                         answer_token_ratio = None
                     else:
-                        raise ValueError(f"Loss mode to be double checked: {self.config.policy_loss.loss_mode}")
+                        raise ValueError(f"Loss mode to be double checked under soft thinking mode: {self.config.policy_loss.loss_mode}")
                             
                     if entropy_coeff != 0:
                         entropy_loss = agg_loss(loss_mat=entropy, loss_mask=response_mask, loss_agg_mode=loss_agg_mode)

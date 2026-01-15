@@ -28,12 +28,8 @@ while [[ $# -gt 0 ]]; do
             MAX_TOKEN_LEN_PER_GPU="$2"
             shift 2
             ;;
-        --max_topk)
-            MAX_TOPK="$2"
-            shift 2
-            ;;
-        --used_topk)
-            USED_TOPK="$2"
+        --multiplex_width)
+            MULTIPLEX_WIDTH="$2"
             shift 2
             ;;
         --loss_mode)
@@ -183,12 +179,8 @@ if [ -z "$MAX_TOKEN_LEN_PER_GPU" ]; then
     MAX_TOKEN_LEN_PER_GPU=65536
 fi
 
-if [ -z "$MAX_TOPK" ]; then
-    MAX_TOPK=3
-fi
-
-if [ -z "$USED_TOPK" ]; then
-    USED_TOPK=3
+if [ -z "$MULTIPLEX_WIDTH" ]; then
+    MULTIPLEX_WIDTH=3
 fi
 
 if [ -z "$LOSS_MODE" ]; then
@@ -204,7 +196,7 @@ if [ -z "$TEMP" ]; then
 fi
 
 if [ -z "$EARLY_STOPPING_ENTROPY_THRESHOLD" ]; then
-    EARLY_STOPPING_ENTROPY_THRESHOLD=0.1
+    EARLY_STOPPING_ENTROPY_THRESHOLD=-1.0
 fi
 
 if [ -z "$EARLY_STOPPING_LENGTH_THRESHOLD" ]; then
@@ -240,7 +232,7 @@ if [ -z "$N_GPUS_PER_NODE" ]; then
 fi
 
 if [ -z "$AFTER_THINKING_TEMPERATURE" ]; then
-    AFTER_THINKING_TEMPERATURE=0.6
+    AFTER_THINKING_TEMPERATURE=1.0
 fi
 
 if [ -z "$ENABLE_REPLACEMENT" ]; then
@@ -393,8 +385,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.after_thinking_top_p=$AFTER_THINKING_TOP_P \
     actor_rollout_ref.rollout.after_thinking_top_k=$AFTER_THINKING_TOP_K \
     actor_rollout_ref.rollout.after_thinking_min_p=$AFTER_THINKING_MIN_P \
-    actor_rollout_ref.rollout.max_topk=$MAX_TOPK \
-    actor_rollout_ref.rollout.used_topk=$USED_TOPK \
+    actor_rollout_ref.rollout.max_topk=$MULTIPLEX_WIDTH \
+    actor_rollout_ref.rollout.used_topk=$MULTIPLEX_WIDTH \
     actor_rollout_ref.rollout.top_p=$TOP_P \
     actor_rollout_ref.rollout.early_stopping_entropy_threshold=$EARLY_STOPPING_ENTROPY_THRESHOLD \
     actor_rollout_ref.rollout.early_stopping_length_threshold=$EARLY_STOPPING_LENGTH_THRESHOLD \
@@ -418,8 +410,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.val_kwargs.after_thinking_top_p=$AFTER_THINKING_TOP_P \
     actor_rollout_ref.rollout.val_kwargs.after_thinking_top_k=$AFTER_THINKING_TOP_K \
     actor_rollout_ref.rollout.val_kwargs.after_thinking_min_p=$AFTER_THINKING_MIN_P \
-    actor_rollout_ref.rollout.val_kwargs.max_topk=$MAX_TOPK \
-    actor_rollout_ref.rollout.val_kwargs.used_topk=$USED_TOPK \
+    actor_rollout_ref.rollout.val_kwargs.max_topk=$MULTIPLEX_WIDTH \
+    actor_rollout_ref.rollout.val_kwargs.used_topk=$MULTIPLEX_WIDTH \
     actor_rollout_ref.rollout.val_kwargs.top_p=$TOP_P \
     actor_rollout_ref.actor.entropy_coeff=0.0 \
     actor_rollout_ref.rollout.gpu_memory_utilization=${GPU_MEMORY_UTILIZATION} \
