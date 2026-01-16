@@ -9,6 +9,7 @@
 
 [![Paper](https://img.shields.io/badge/arXiv-2601.08808-B31B1B.svg)](https://arxiv.org/abs/2601.08808)
 [![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Checkpoints-FFD21E)](https://huggingface.co/Multiplex-Thinking)
+[![Website](https://img.shields.io/badge/Website-Online-2ea44f)](https://gmlr-penn.github.io/Multiplex-Thinking/)
 
 <!-- [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)  -->
 
