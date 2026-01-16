@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Primary Meta Tags -->
+  <title>Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge</title>
+  <meta name="title" content="Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge" />
+  <meta name="description" content="Multiplex Thinking performs token-wise branch-and-merge reasoning by sampling K tokens and aggregating their embeddings into a single multiplex token, improving Pass@k while producing shorter reasoning traces." />
+  <meta name="keywords" content="LLM reasoning, chain-of-thought, continuous chain-of-thought, reinforcement learning, pass@k, language agents, soft reasoning" />
+  <meta name="author" content="Yao Tang, Li Dong, Yaru Hao, Qingxiu Dong, Furu Wei, Jiatao Gu" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="English" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="University of Pennsylvania and Microsoft Research" />
+  <meta property="og:title" content="Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge" />
+  <meta property="og:description" content="Token-wise branch-and-merge reasoning that samples K tokens and aggregates embeddings into a single multiplex token, improving Pass@k with shorter traces." />
+  <!-- Replace with your final URL -->
+  <meta property="og:url" content="https://gmlr-penn.github.io/Multiplex-Thinking/" />
+  <!-- Create a 1200x630 image and place it here -->
+  <meta property="og:image" content="static/images/zoom_in_logo.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Multiplex Thinking: Research Preview" />
+  <meta property="article:author" content="Yao Tang, Li Dong, Yaru Hao, Qingxiu Dong, Furu Wei, Jiatao Gu" />
+  <meta property="article:section" content="Research" />
+  <meta property="article:tag" content="LLM Reasoning" />
+  <meta property="article:tag" content="Continuous Chain-of-Thought" />
+  <meta property="article:tag" content="Reinforcement Learning" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <!-- Optional: set handles when available -->
+  <meta name="twitter:title" content="Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge" />
+  <meta name="twitter:description" content="Token-wise branch-and-merge reasoning that improves Pass@k with shorter traces." />
+  <meta name="twitter:image" content="static/images/zoom_in_logo.png" />
+  <meta name="twitter:image:alt" content="Multiplex Thinking: Research Preview" />
+
+  <!-- Academic / Citation Meta (arXiv) -->
+  <meta name="citation_title" content="Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge" />
+  <meta name="citation_author" content="Tang, Yao" />
+  <meta name="citation_author" content="Dong, Li" />
+  <meta name="citation_author" content="Hao, Yaru" />
+  <meta name="citation_author" content="Dong, Qingxiu" />
+  <meta name="citation_author" content="Wei, Furu" />
+  <meta name="citation_author" content="Gu, Jiatao" />
+  <meta name="citation_publication_date" content="2026" />
+  <meta name="citation_conference_title" content="arXiv" />
+  <!-- If you have a hosted PDF, replace the URL; otherwise arXiv PDF link works too -->
+  <meta name="citation_pdf_url" content="https://arxiv.org/pdf/2601.08808.pdf" />
+
+  <!-- Additional SEO -->
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="msapplication-TileColor" content="#2563eb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://ajax.googleapis.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/png" href="static/images/zoom_in_logo.png" />
+  <link rel="apple-touch-icon" href="static/images/zoom_in_logo.png" />
+
+  <!-- Critical CSS - Load synchronously -->
+  <link rel="stylesheet" href="static/css/bulma.min.css" />
+  <link rel="stylesheet" href="static/css/index.css" />
+
+  <!-- Non-critical CSS - Load asynchronously -->
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css" />
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css" />
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
+  </noscript>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Defer non-critical JavaScript -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+
+
+
+
+<body>
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <main id="main-content">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-body" style="padding-bottom: 0;">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered">
+            <div class="column has-text-centered">
+
+              <h1 class="title is-1 publication-title" style="margin-bottom: 0.0rem;">
+                Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge
+              </h1>
+
+              <div class="is-size-5 publication-authors" style="margin-bottom: 0.025rem;">
+                <span class="author-block">
+                  <a href="https://yaotang23.github.io/" target="_blank" rel="noopener noreferrer">Yao Tang</a><sup>1</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?user=wEfQgPgAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Li Dong</a><sup>2</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?user=cqOLO7IAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Yaru Hao</a><sup>2</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?user=ibcR7VkAAAAJ&hl=zh-CN" target="_blank" rel="noopener noreferrer">Qingxiu Dong</a><sup>2</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?user=G-V1VpwAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Furu Wei</a><sup>2</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://jiataogu.me/" target="_blank" rel="noopener noreferrer">Jiatao Gu</a><sup>1</sup>
+                </span>
+              </div>
+
+              <div class="is-size-5 publication-authors" style="margin-bottom: 0.0rem;">
+                <span class="author-block">
+                  <sup>1</sup>University of Pennsylvania&nbsp;&nbsp;&nbsp;
+                  <sup>2</sup>Microsoft Research
+                </span>
+              </div>
+
+              <div style="margin-bottom: 1rem;">
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2601.08808" target="_blank" rel="noopener noreferrer"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="ai ai-arxiv"></i></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="https://github.com/GMLR-Penn/Multiplex-Thinking" target="_blank" rel="noopener noreferrer"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="https://huggingface.co/Multiplex-Thinking" target="_blank" rel="noopener noreferrer"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><p style="font-size:18px">🤗</p></span>
+                    <span>Checkpoints</span>
+                  </a>
+                </span>
+              </div>
+
+              <div class="subtitle has-text-centered" style="margin-top: 0.5rem; margin-bottom: 0;">
+                <p style="font-size: 1.25rem;">
+                  <strong>Multiplex Thinking</strong> samples multiple
+                  <span style="color:#1f77b4;"><strong>discrete tokens</strong></span>
+                  and merges them into one
+                  <span style="color:#9467bd;"><strong>multiplex token</strong></span>
+                  at each thinking step.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Teaser video -->
+    <section class="hero teaser" style="margin-top: 0;">
+      <div class="container is-max-desktop">
+        <div class="hero-body" style="padding-top: 0;">
+          <video
+            id="tree"
+            autoplay
+            controls
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster="static/images/teaser_poster.png"
+            style="width: 100%; height: auto;"
+          >
+            <source src="static/videos/multiplex_demo.mp4" type="video/mp4" />
+          </video>
+
+          <div class="subtitle has-text-centered">
+            <p style="margin-top: 1rem; line-height: 1.4;">
+              Multiplex tokens are self-adaptive:<br />
+              <strong>Confident</strong> step (low entropy) → tokens agree → <strong>a multiplex token ≈ a standard CoT step</strong><br />
+              <strong>Uncertain</strong> step (high entropy) → tokens diversify → <strong>a multiplex token ≈ multiple next steps</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Abstract -->
+    <section class="section hero is-light">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3">Abstract</h2>
+            <div class="content has-text-justified">
+              <p>
+                Large language models often solve complex reasoning tasks more effectively with Chain-of-Thought (CoT), but at the cost of long, low-bandwidth token sequences. Humans, by contrast, often reason softly by maintaining a distribution over plausible next steps. Motivated by this, we propose Multiplex Thinking, a stochastic soft reasoning mechanism that, at each thinking step, samples K candidate tokens and aggregates their embeddings into a single continuous multiplex token. This preserves the vocabulary embedding prior and the sampling dynamics of standard discrete generation, while inducing a tractable probability distribution over multiplex rollouts. Consequently, multiplex trajectories can be directly optimized with on-policy reinforcement learning (RL). Importantly, Multiplex Thinking is self-adaptive: when the model is confident, the multiplex token is nearly discrete and behaves like standard CoT; when it is uncertain, it compactly represents multiple plausible next steps without increasing sequence length. Across challenging math reasoning benchmarks, Multiplex Thinking consistently outperforms strong discrete CoT and RL baselines from Pass@1 through Pass@1024, while producing shorter sequences.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Carousel -->
+    <section class="hero is-small" id="passk-results">
+      <div class="hero-body">
+        <div class="container">
+          <h2 class="title is-3 has-text-centered">Better performance, fewer forward passes</h2>
+          <p class="subtitle has-text-centered" style="max-width: 56rem; margin: 0.5rem auto 1.5rem;">
+            Multiplex Thinking improves Pass@k while keeping reasoning compact.
+          </p>
+
+          <div id="results-carousel" class="carousel results-carousel">
+
+            <div class="item">
+              <h3 class="title is-4 has-text-centered">Beat RL on discrete rollouts (Pass@1 → Pass@1024)</h3>
+              <figure class="has-text-centered">
+                <img
+                  src="static/images/passk.png"
+                  alt="Pass@1 to Pass@1024 results comparing Multiplex Thinking against baselines"
+                  loading="lazy"
+                />
+                <figcaption class="subtitle has-text-centered">
+                  Pass@1–Pass@1024 results on representative datasets.
+                </figcaption>
+              </figure>
+            </div>
+
+            <div class="item">
+              <h3 class="title is-4 has-text-centered">Think better, think shorter</h3>
+
+              <figure class="has-text-centered" style="margin: 0;">
+                <div class="columns is-mobile is-variable is-3" style="justify-content: center;">
+                  <div class="column is-half">
+                    <img
+                      src="static/images/length.png"
+                      alt="Average response length vs multiplex width K"
+                      loading="lazy"
+                      style="width: 100%; height: auto;"
+                    />
+                  </div>
+                  <div class="column is-half">
+                    <img
+                      src="static/images/length_scale.png"
+                      alt="Response length scaling vs multiplex width K"
+                      loading="lazy"
+                      style="width: 100%; height: auto;"
+                    />
+                  </div>
+                </div>
+
+                <figcaption class="subtitle has-text-centered">
+                  Response length comparison between Multiplex Thinking (K=2/3/4) and discrete RL (K=1).
+                  <span style="opacity: 0.9;">Left: average length. Right: length scaling.</span>
+                </figcaption>
+              </figure>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Case Study -->
+    <section class="section">
+      <div class="container is-fluid">
+        <h2 class="title is-3 has-text-centered">Case Study</h2>
+        <p class="subtitle has-text-centered" style="max-width: 56rem; margin: 0.5rem auto 1.5rem;">
+          We visualize a multiplex trajectory where 3 discrete tokens are independently sampled at each position and displayed as Sample 1/2/3. The gray number above each token represents its index in the trajectory. A <span style="background-color: #FFFDE7; padding: 0 4px; border-radius: 3px;">yellow</span> background indicates all branches sampled the same token, <span style="background-color: #F3E5F5; padding: 0 4px; border-radius: 3px;">purple</span> indicates two unique tokens, and <span style="background-color: #FFEBEE; padding: 0 4px; border-radius: 3px;">red</span> indicates three distinct tokens.
+        </p>
+        <div class="content" style="display: flex; justify-content: center;">
+          <iframe
+            src="multiplex_traj.html"
+            width="85%"
+            height="600"
+            frameborder="0"
+            loading="lazy"
+            title="Multiplex Thinking trajectory case study"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- BibTeX -->
+    <section class="section" id="BibTeX">
+      <div class="container is-max-desktop content">
+        <div class="bibtex-header">
+          <h2 class="title">BibTeX</h2>
+          <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard" aria-label="Copy BibTeX">
+            <i class="fas fa-copy"></i>
+            <span class="copy-text">Copy</span>
+          </button>
+        </div>
+        <pre id="bibtex-code"><code>@article{tang2026multiplexthinking,
+  title   = {Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge},
+  author  = {Tang, Yao and Dong, Li and Hao, Yaru and Dong, Qingxiu and Wei, Furu and Gu, Jiatao},
+  journal = {arXiv preprint arXiv:2601.08808},
+  year    = {2026}
+}</code></pre>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This page was built using the
+              <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank" rel="noopener noreferrer">Academic Project Page Template</a>
+              which was adopted from the
+              <a href="https://nerfies.github.io" target="_blank" rel="noopener noreferrer">Nerfies</a>
+              project page.
+              You are free to borrow the source code of this website; we just ask that you link back to this page in the footer.<br />
+              This website is licensed under a
+              <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">
+                Creative Commons Attribution-ShareAlike 4.0 International License
+              </a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
