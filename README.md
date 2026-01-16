@@ -1,0 +1,123 @@
+<div align="center">
+
+<h1 style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0;">
+  <img src="figs/logo_clip.png" alt="logo" height="50" style="display: block;" />
+  <span>Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge</span>
+</h1>
+
+</div>
+
+[![Paper](https://img.shields.io/badge/arXiv-2601.08808-B31B1B.svg)](https://arxiv.org/abs/2601.08808)
+[![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Checkpoints-FFD21E)](https://huggingface.co/Multiplex-Thinking)
+[![Website](https://img.shields.io/badge/Website-Online-2ea44f)](https://gmlr-penn.github.io/Multiplex-Thinking/)
+
+<div align="center">
+  <img src="figs/teaser.png" alt="teaser" width="300" />
+</div>
+
+<!-- [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)  -->
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Getting Started](#getting-started-)
+  - [Environment Setup](#environment-setup)
+  - [Base Docker Image](#base-docker-image)
+  - [Dependencies](#dependencies)
+  - [Setup](#setup)
+- [Training and evaluation](#training-and-evaluation)
+- [Implementation Credits](#implementation-credits)
+- [Checkpoints](#-checkpoints)
+
+## Overview
+
+This repository contains the **official implementation** of **Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge**.
+
+Multiplex Thinking proposes a **token-wise branch-and-merge reasoning mechanism**, enabling efficient and expressive multi-pat reasoning while maintaining a compact token representation.
+
+The codebase is built upon several high-quality open-source projects. We sincerely thank the original authors and contributors for their outstanding work.
+
+---
+
+## Getting Started 🚀
+
+### Environment Setup
+
+We recommend using Docker to ensure a consistent and reproducible environment. If you prefer Conda, we also provide an environment specification in `conda_env.yaml`.
+
+### Base Docker Image
+
+We suggest starting from the official **verl SGLang worker** Docker image:
+
+- https://github.com/volcengine/verl/blob/325cbc770bfe32ef022f1cd67feab1a23bba9e42/docker/verl0.5-cu126-torch2.7-fa2.7.4/Dockerfile.app.sglang0.4.9.post6.mcore0.13
+
+For general system configuration, please refer to the official documentation of verl:
+
+- https://verl.readthedocs.io/en/latest/workers/sglang_worker.html
+
+### Dependencies
+
+Please ensure the following package versions are installed:
+
+- `sglang == 0.4.9.post6`
+- `transformers == 4.54.0`
+
+### Setup
+
+Run the setup script:
+
+```bash
+bash setup.sh
+```
+    The `setup.sh` script handles the installation of required dependencies and ensures the correct versions of our customized libraries are active by running:
+    * `pip install sglang-0.4.9.post6`
+    * `pip install transformers-4.54.0`
+
+## Training and evaluation
+
+Train and evaluate by running:
+
+```
+bash scripts/train.sh \
+  --model deepseek-ai/DeepSeek-R1-Distill-Qwen-7B \
+  --exp_name your_exp_name \
+  --enable_unweighting True \ # True for average embedding; False for weighted embedding
+  --total_training_steps 300 \
+  --train_batch_size 128 \
+  --max_token_len_per_gpu 32768 \
+  --loss_mode multiplex_thinking \
+  --multiplex_width 3 \
+  --n_gpus_per_node 8 \
+  --max_response_length 4096 \
+  --val_rollout_n 4 \
+  --val_dataset math \
+  --val_batch_size 1024
+```
+
+Or run evaluation:
+
+`bash scripts/eval.sh`
+
+## Implementation Credits
+This codebase is built upon and inspired by the exceptional work from the following projects:
+* **Training & RL Framework**: [verl](https://github.com/volcengine/verl) & [DeepScaleR](https://github.com/agentica-project/DeepScaleR)
+* **Inference Engine**: [sglang](https://github.com/sgl-project/sglang)
+* **Code Inspiration & Adaptations**: [Soft Thinking](https://github.com/eric-ai-lab/Soft-Thinking)
+
+
+## 📁 Checkpoints
+Model weights are available on Hugging Face:
+👉 [**Multiplex-Thinking-HF-Checkpoints**](https://huggingface.co/Multiplex-Thinking)
+
+# ✍️ Citation 
+If you find this work useful for your research, please cite our paper as:
+```
+@article{tang2026multiplexthinking,
+  title   = {Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge},
+  author  = {Tang, Yao and Dong, Li and Hao, Yaru and Dong, Qingxiu and Wei, Furu and Gu, Jiatao},
+  journal = {arXiv preprint arXiv:2601.08808},
+  year    = {2026}
+}
+```
+
