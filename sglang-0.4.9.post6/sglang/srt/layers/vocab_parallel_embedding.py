@@ -31,7 +31,6 @@ _is_cpu = is_cpu()
 
 logger = logging.getLogger(__name__)
 
-
 def pad_vocab_size(vocab_size: int, pad_to: int = DEFAULT_VOCAB_PADDING_SIZE) -> int:
     """Pad the vocab size to the given value."""
     return ((vocab_size + pad_to - 1) // pad_to) * pad_to

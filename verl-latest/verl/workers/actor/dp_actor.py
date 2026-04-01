@@ -343,17 +343,35 @@ class DataParallelPPOActor(BasePPOActor):
 
                     if is_soft_thinking:
                         soft_mask = ~((topk_probs_rmpad[:, 0] == 1.0) & (topk_probs_rmpad[:, 1:].sum(dim=-1) == 0.0))
-                        
+
+                        # clean up unused variables
                         del full_topk_indices, full_topk_probs,topk_indices_rmpad,topk_probs_rmpad,position_ids_rmpad
+
+                        # Use fused logprobs_from_logits (flash_attn cross_entropy) per topk slot
+                        # instead of log_softmax + gather to avoid materializing [total_nnz, vocab_size] logprobs tensor.
+                        log_probs_list = []
+                        for k in range(topk_indices_rmpad_rolled.shape[1]):
+                            lp = logprobs_from_logits(
+                                logits=logits_rmpad.unsqueeze(0),
+                                labels=topk_indices_rmpad_rolled[:, k].unsqueeze(0),
+                                inplace_backward=False,
+                            ).squeeze(0)
+                            log_probs_list.append(lp)
+                        log_probs = torch.stack(log_probs_list, dim=1)  # (total_nnz, topk)
+                        del logits_rmpad, topk_indices_rmpad_rolled
+
                         if self.enable_gumbel:
-                            logprobs = torch.log_softmax(logits_rmpad, dim=-1)
-                            del logits_rmpad
-                            log_probs = logprobs.gather(dim=-1, index=topk_indices_rmpad_rolled)
-                            del logprobs,topk_indices_rmpad_rolled    
-                        else:
-                            logprobs = torch.log_softmax(logits_rmpad, dim=-1)
-                            log_probs = logprobs.gather(dim=-1, index=topk_indices_rmpad_rolled)
-                            del logprobs
+                            # Only add Gumbel noise to thinking tokens (where soft_mask is True)
+                            if torch.any(soft_mask):
+                                noise_buffer = torch.rand_like(log_probs[soft_mask], dtype=log_probs.dtype)
+                                noise_buffer.clamp_(min=1e-20, max=1.0 - 1e-7)
+                                noise_buffer.log_()
+                                noise_buffer.mul_(-1.0)
+                                noise_buffer.log_()
+                                noise_buffer.mul_(-1.0)
+                                log_probs[soft_mask] = (noise_buffer + log_probs[soft_mask]) / self.gumbel_tau
+                                del noise_buffer
+                            # Don't delete soft_mask here - we need it later for entropy aggregation
                     else:
                         log_probs = logprobs_from_logits(
                             logits=logits_rmpad,
@@ -362,7 +380,7 @@ class DataParallelPPOActor(BasePPOActor):
                         )
 
                 if self.use_ulysses_sp:
-                    raise NotImplementedError("use_ulysses_sp to be double checked")
+                    raise NotImplementedError("use_ulysses_sp to be double checked with soft thinking")
                     # gather and unpad for the ulysses sp
                     log_probs = gather_outpus_and_unpad(
                         log_probs,

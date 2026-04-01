@@ -5,6 +5,9 @@ import threading
 import time
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
+import torch
+from torch.nn.utils.rnn import pad_sequence
+
 from sglang.srt.disaggregation.utils import DisaggregationMode
 from sglang.srt.layers.logits_processor import LogitsProcessorOutput
 from sglang.srt.managers.io_struct import AbortReq, BatchEmbeddingOut, BatchTokenIDOut
@@ -690,8 +693,17 @@ class SchedulerOutputProcessorMixin:
                 # begin of soft thinking
                 # ==========
                 if self.enable_soft_thinking:
-                    output_topk_probs_list.append(req.get_output_topk_prob_list())
-                    output_topk_indices_list.append(req.get_output_topk_idx_list())
+                    topk_probs = req.get_output_topk_prob_list()
+                    topk_indices = req.get_output_topk_idx_list()
+
+                    if topk_probs is not None:
+                        topk_probs = topk_probs[send_output_token_logprobs_offset:]
+                    if topk_indices is not None:
+                        topk_indices = topk_indices[send_output_token_logprobs_offset:]
+
+                    output_topk_probs_list.append(topk_probs)
+                    output_topk_indices_list.append(topk_indices)
+
                 # ==========
                 # end of soft thinking
                 # ==========
@@ -707,6 +719,16 @@ class SchedulerOutputProcessorMixin:
         if rids:
             if self.model_config.is_multimodal_gen:
                 return
+
+            if output_topk_probs_list:
+                output_topk_probs_list = pad_sequence(output_topk_probs_list, batch_first=True, padding_value=0.0)
+            else:
+                output_topk_probs_list = None
+
+            if output_topk_indices_list:
+                output_topk_indices_list = pad_sequence(output_topk_indices_list, batch_first=True, padding_value=0)
+            else:
+                output_topk_indices_list = None
 
             self.send_to_detokenizer.send_pyobj(
                 BatchTokenIDOut(

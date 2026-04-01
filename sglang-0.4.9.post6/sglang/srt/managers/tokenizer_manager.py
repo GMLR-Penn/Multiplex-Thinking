@@ -165,6 +165,10 @@ class ReqState:
     output_top_logprobs_val: List[List[float]] = dataclasses.field(default_factory=list)
     output_top_logprobs_idx: List[List[int]] = dataclasses.field(default_factory=list)
     input_token_ids_logprobs_val: List = dataclasses.field(default_factory=list)
+
+    # For soft thinking topk accumulation
+    output_topk_probs_chunks: List = dataclasses.field(default_factory=list)
+    output_topk_indices_chunks: List = dataclasses.field(default_factory=list)
     input_token_ids_logprobs_idx: List = dataclasses.field(default_factory=list)
     output_token_ids_logprobs_val: List = dataclasses.field(default_factory=list)
     output_token_ids_logprobs_idx: List = dataclasses.field(default_factory=list)
@@ -1483,10 +1487,27 @@ class TokenizerManager:
             # ==========
             # begin of soft thinking topk handling
             # ==========
-            # Add soft thinking topk information to meta_info if available
+            # Accumulate soft thinking topk chunks (like logprobs accumulation)
             if self.enable_soft_thinking:
-                meta_info["output_topk_probs_list"] = recv_obj.output_topk_probs_list[i]
-                meta_info["output_topk_indices_list"] = recv_obj.output_topk_indices_list[i]
+                topk_probs = getattr(recv_obj, "output_topk_probs_list", None)
+                topk_indices = getattr(recv_obj, "output_topk_indices_list", None)
+                if topk_probs is not None and topk_indices is not None:
+                    cur_output_len = len(recv_obj.output_token_logprobs_val[i])
+                    # Append this incremental chunk to accumulated state
+                    state.output_topk_probs_chunks.append(
+                        topk_probs[i, :cur_output_len]
+                    )
+                    state.output_topk_indices_chunks.append(
+                        topk_indices[i, :cur_output_len]
+                    )
+                    # Concatenate all chunks to get full history
+                    import torch
+                    meta_info["output_topk_probs_list"] = torch.cat(
+                        state.output_topk_probs_chunks, dim=0
+                    )
+                    meta_info["output_topk_indices_list"] = torch.cat(
+                        state.output_topk_indices_chunks, dim=0
+                    )
             # ==========
             # end of soft thinking topk handling
             # ==========

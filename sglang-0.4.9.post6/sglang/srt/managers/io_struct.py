@@ -22,6 +22,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
+import torch
+
 from sglang.srt.lora.lora_registry import LoRARef
 from sglang.srt.managers.schedule_batch import BaseFinishReason
 from sglang.srt.multimodal.mm_utils import has_valid_data
@@ -694,8 +696,8 @@ class BatchTokenIDOut:
     # ==========
     # begin of soft thinking
     # ==========
-    output_topk_probs_list: List[List[List[float]]]
-    output_topk_indices_list: List[List[List[int]]]
+    output_topk_probs_list: Optional[torch.Tensor]
+    output_topk_indices_list: Optional[torch.Tensor]
     # ==========
     # end of soft thinking
     # ==========
@@ -748,8 +750,8 @@ class BatchStrOut:
     # ==========
     # begin of soft thinking
     # ==========
-    output_topk_probs_list: List[List[List[float]]]
-    output_topk_indices_list: List[List[List[int]]]
+    output_topk_probs_list: Optional[torch.Tensor]
+    output_topk_indices_list: Optional[torch.Tensor]
     # ==========
     # end of soft thinking
     # ==========

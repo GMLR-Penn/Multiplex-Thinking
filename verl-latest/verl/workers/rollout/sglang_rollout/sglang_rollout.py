@@ -233,9 +233,9 @@ def _post_process_outputs(processing_class, output):
         batched_output_token_ids.append(output_token_ids)
         batched_logprobs.append(log_probs)
         if topk_probs is not None:
-            batched_topk_probs.append(torch.tensor(topk_probs, dtype=torch.bfloat16))
+            batched_topk_probs.append(torch.as_tensor(topk_probs, dtype=torch.bfloat16))
         if topk_indices is not None:
-            batched_topk_indices.append(torch.tensor(topk_indices))
+            batched_topk_indices.append(torch.as_tensor(topk_indices))
     
     batched_output_token_ids = pad_sequence(batched_output_token_ids, batch_first=True, padding_value=pad_token_id)
     if len(batched_logprobs) > 0:
@@ -847,8 +847,7 @@ class SGLangRollout(BaseRollout):
         if self._tp_rank == 0:
             loop = asyncio.get_event_loop()
             output = loop.run_until_complete(
-                
-                  self._engine.async_generate(
+                self._engine.async_generate(
                     prompt=None,  # because we have already convert it to prompt token id
                     sampling_params=request_sampling_params,
                     return_logprob=True,
@@ -859,37 +858,90 @@ class SGLangRollout(BaseRollout):
         else:
             output = None
 
-        # Most naive implementation, can extract tensor and send via gloo if too slow
-        dist.barrier()
-        [output] = broadcast_pyobj(
-            data=[output],
-            rank=self._rank,
-            dist_group=self._device_mesh_cpu["tp"].get_group(),
-            src=self._device_mesh_cpu["tp"].mesh[0].item(),
-            force_cpu_device=False,
-        )
-        out = _post_process_outputs(self.processing_class, output)
+        # Broadcast rollout results: use tensor broadcast for large data instead of pyobj pickle
+        tp_group = self._device_mesh_cpu["tp"].get_group()
+        tp_src = self._device_mesh_cpu["tp"].mesh[0].item()
 
-        response = out[0].to(idx.device)
-        rollout_log_probs = None
-        if self.config.calculate_log_probs:
-            rollout_log_probs = out[1].to(idx.device)
-        
-        # ==========
-        # begin of soft thinking topk handling
-        # ==========
-        # Extract topk information if available
+        dist.barrier(group=tp_group)
+
+        if self._tp_rank == 0:
+            # Post-process on rank 0 to get clean tensors before broadcast
+            out = _post_process_outputs(self.processing_class, output)
+            response = out[0]                # [B, T] int64
+            batched_logprobs = out[1]        # [B, T] float
+            topk_probs_t = out[2]            # [B, T, K] bfloat16 or None
+            topk_indices_t = out[3]          # [B, T, K] int64 or None
+
+            # Broadcast metadata: shapes + flags so other ranks can allocate
+            resp_shape = list(response.shape)
+            logprob_shape = list(batched_logprobs.shape) if batched_logprobs is not None else None
+            topk_probs_shape = list(topk_probs_t.shape) if topk_probs_t is not None else None
+            topk_indices_shape = list(topk_indices_t.shape) if topk_indices_t is not None else None
+            meta = {
+                "resp_shape": resp_shape,
+                "resp_dtype": response.dtype,
+                "logprob_shape": logprob_shape,
+                "logprob_dtype": batched_logprobs.dtype if batched_logprobs is not None else None,
+                "topk_probs_shape": topk_probs_shape,
+                "topk_probs_dtype": topk_probs_t.dtype if topk_probs_t is not None else None,
+                "topk_indices_shape": topk_indices_shape,
+                "topk_indices_dtype": topk_indices_t.dtype if topk_indices_t is not None else None,
+            }
+            broadcast_pyobj([meta], rank=self._rank, dist_group=tp_group, src=tp_src, force_cpu_device=False)
+
+            # Move tensors to GPU and broadcast
+            device = idx.device
+            response = response.to(device)
+            dist.broadcast(response, src=tp_src, group=tp_group)
+
+            if batched_logprobs is not None:
+                batched_logprobs = batched_logprobs.to(device)
+                dist.broadcast(batched_logprobs, src=tp_src, group=tp_group)
+
+            if topk_probs_t is not None:
+                topk_probs_t = topk_probs_t.to(device)
+                dist.broadcast(topk_probs_t, src=tp_src, group=tp_group)
+
+            if topk_indices_t is not None:
+                topk_indices_t = topk_indices_t.to(device)
+                dist.broadcast(topk_indices_t, src=tp_src, group=tp_group)
+        else:
+            # Receive metadata
+            [meta] = broadcast_pyobj([None], rank=self._rank, dist_group=tp_group, src=tp_src, force_cpu_device=False)
+
+            device = idx.device
+
+            # Allocate and receive tensors
+            response = torch.empty(meta["resp_shape"], dtype=meta["resp_dtype"], device=device)
+            dist.broadcast(response, src=tp_src, group=tp_group)
+
+            batched_logprobs = None
+            if meta["logprob_shape"] is not None:
+                batched_logprobs = torch.empty(meta["logprob_shape"], dtype=meta["logprob_dtype"], device=device)
+                dist.broadcast(batched_logprobs, src=tp_src, group=tp_group)
+
+            topk_probs_t = None
+            if meta["topk_probs_shape"] is not None:
+                topk_probs_t = torch.empty(meta["topk_probs_shape"], dtype=meta["topk_probs_dtype"], device=device)
+                dist.broadcast(topk_probs_t, src=tp_src, group=tp_group)
+
+            topk_indices_t = None
+            if meta["topk_indices_shape"] is not None:
+                topk_indices_t = torch.empty(meta["topk_indices_shape"], dtype=meta["topk_indices_dtype"], device=device)
+                dist.broadcast(topk_indices_t, src=tp_src, group=tp_group)
+
+        # Results are already on device
+        rollout_log_probs = batched_logprobs if self.config.calculate_log_probs else None
+
+        # Extract topk information
         soft_thinking_topk_probs = None
         soft_thinking_topk_indices = None
-        if len(out) > 2 and out[2] is not None:
+        if topk_probs_t is not None:
             assert self.enable_soft_thinking, "soft_thinking_topk_probs should only be present when enable_soft_thinking is True"
-            soft_thinking_topk_probs = out[2].to(idx.device)
-        if len(out) > 3 and out[3] is not None:
-            assert self.enable_soft_thinking, "soft_thinking_topk_probs should only be present when enable_soft_thinking is True"
-            soft_thinking_topk_indices = out[3].to(idx.device)
-        # ==========
-        # end of soft thinking topk handling
-        # ==========
+            soft_thinking_topk_probs = topk_probs_t
+        if topk_indices_t is not None:
+            assert self.enable_soft_thinking, "soft_thinking_topk_indices should only be present when enable_soft_thinking is True"
+            soft_thinking_topk_indices = topk_indices_t
 
         if response.shape[1] < self.config.response_length:
             response = pad_sequence_to_length(response, self.config.response_length, self.pad_token_id)

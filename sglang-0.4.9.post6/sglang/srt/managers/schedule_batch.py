@@ -644,18 +644,29 @@ class Req:
         self.enable_soft_thinking = enable_soft_thinking
         if self.enable_soft_thinking and used_topk is not None:
             self.sampling_params.post_init_soft_thinking_mode()
+            cur_device = torch.cuda.current_device()
             self.topk_prob = torch.empty(
                 max_topk,
                 dtype=torch.bfloat16,
-                device=torch.device('cuda:0')
+                device=cur_device,
             ).fill_(float('nan'))
-
             self.topk_idx = torch.full(
                 (max_topk,),
                 -1,
                 dtype=torch.int64,
-                device=torch.device('cuda:0')
+                device=cur_device,
             )
+            # Pre-allocated GPU buffer for topk accumulation
+            # Avoids per-step Python list append + periodic torch.stack
+            max_output_len = getattr(self.sampling_params, 'max_new_tokens', 8192) or 8192
+            self._topk_prob_buf = torch.zeros(
+                max_output_len, max_topk, dtype=torch.bfloat16, device=cur_device
+            )
+            self._topk_idx_buf = torch.zeros(
+                max_output_len, max_topk, dtype=torch.int64, device=cur_device
+            )
+            self._topk_buf_pos = 0  # write cursor
+            # Legacy lists kept for compatibility but no longer used in hot path
             self.output_topk_prob_list = []
             self.output_topk_idx_list = []
             self.output_topk_prob_list_tmp = []
@@ -667,6 +678,9 @@ class Req:
         else:
             self.topk_prob = None
             self.topk_idx = None
+            self._topk_prob_buf = None
+            self._topk_idx_buf = None
+            self._topk_buf_pos = 0
             self.output_topk_prob_list = []
             self.output_topk_idx_list = []
             self.output_topk_prob_list_tmp = []
@@ -799,53 +813,46 @@ class Req:
     # begin of soft thinking
     # ==========
     def update_topk_info(self, logits_output, index):
-        # --- FIX: Add a defensive check for the existence of soft thinking attributes ---
-        # These attributes are only present when soft thinking is active for a specific request.
-        
         self.topk_prob = logits_output.topk_probs[index]
         self.topk_idx = logits_output.topk_indices[index]
-        
-        # last_token_id = self.output_ids[-1]
 
         if self.sampling_params.soft_thinking_mode:
             if self.sampling_params.think_end_str_id is None:
-                self.sampling_params.think_end_str_id = self.tokenizer.encode(self.sampling_params.think_end_str,add_special_tokens=False)[-1]
-                # # for profiling
-                # self.sampling_params.think_end_str_id = -1
-            # early stopping: replace with think_end_str_id if entropy remains low
-            if self.sampling_params.early_stopping_entropy_threshold > 0:
-                pass
+                self.sampling_params.think_end_str_id = self.tokenizer.encode(
+                    self.sampling_params.think_end_str, add_special_tokens=False
+                )[-1]
 
             if self.sampling_params.think_end_str_id == self.output_ids[-1]:
-                self.sampling_params.soft_thinking_mode = torch.tensor(False, dtype=torch.bool, device='cuda') 
+                # Exit soft thinking mode — set one-hot
+                self.sampling_params.soft_thinking_mode = False
                 self.topk_prob[1:].fill_(0.)
                 self.topk_idx[1:].fill_(0)
                 self.topk_prob[0] = 1.0
                 self.topk_idx[0] = self.sampling_params.think_end_str_id
         else:
+            # Non-soft mode: one-hot on head
             self.topk_prob[1:].fill_(0)
             self.topk_idx[1:].fill_(0)
             self.topk_prob[0] = 1.0
-            
-        prob_sum = self.topk_prob.sum(dim=-1)
-        if not torch.allclose(prob_sum, torch.ones_like(prob_sum), atol=1e-3):
-            print(f"WARNING: topk_prob sum is {prob_sum}, expected ~1.0")
-            self.topk_prob = self.topk_prob / prob_sum.unsqueeze(-1)
-        self.output_topk_prob_list_tmp.append(self.topk_prob)
-        self.output_topk_idx_list_tmp.append(self.topk_idx)
-        
+
+        # Write directly into pre-allocated GPU buffer (no Python list, no torch.stack)
+        pos = self._topk_buf_pos
+        if pos < self._topk_prob_buf.shape[0]:
+            self._topk_prob_buf[pos] = self.topk_prob
+            self._topk_idx_buf[pos] = self.topk_idx
+            self._topk_buf_pos = pos + 1
+
 
     def get_output_topk_prob_list(self):
-        if self.output_topk_prob_list_tmp:
-            self.output_topk_prob_list.extend(torch.stack(self.output_topk_prob_list_tmp, dim=0).cpu().tolist())
-            self.output_topk_prob_list_tmp = []
-        return self.output_topk_prob_list
+        # Read from pre-allocated GPU buffer — single slice + .cpu(), no torch.stack
+        if self._topk_prob_buf is not None and self._topk_buf_pos > 0:
+            return self._topk_prob_buf[:self._topk_buf_pos].cpu()
+        return None
 
     def get_output_topk_idx_list(self):
-        if self.output_topk_idx_list_tmp:
-            self.output_topk_idx_list.extend(torch.stack(self.output_topk_idx_list_tmp, dim=0).cpu().tolist())
-            self.output_topk_idx_list_tmp = []
-        return self.output_topk_idx_list
+        if self._topk_idx_buf is not None and self._topk_buf_pos > 0:
+            return self._topk_idx_buf[:self._topk_buf_pos].cpu()
+        return None
     # ==========
     # end of soft thinking
     # ==========
