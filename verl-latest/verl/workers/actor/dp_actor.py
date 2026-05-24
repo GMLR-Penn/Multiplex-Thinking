@@ -669,6 +669,9 @@ class DataParallelPPOActor(BasePPOActor):
                     calculate_entropy = False
                     if entropy_coeff != 0:
                         calculate_entropy = True
+                        
+                    # without soft thinking, all return: (bsz, response_length) 
+                    # with soft thinking, log_prob return: (bsz, response_length, topk), entropy return: (bsz, response_length)
                     entropy, log_prob = self._forward_micro_batch(
                         model_inputs, temperature=temperature, calculate_entropy=calculate_entropy
                     )
@@ -680,9 +683,7 @@ class DataParallelPPOActor(BasePPOActor):
 
                     
                     
-                    # without soft thinking, all return: (bsz, response_length) 
-                    # with soft thinking, log_prob return: (bsz, response_length, topk), entropy return: (bsz, response_length)
-                    entropy, log_prob = self._forward_micro_batch(micro_batch=model_inputs, temperature=temperature, calculate_entropy=calculate_entropy)
+                    
                     loss_mode = self.config.policy_loss.get("loss_mode", "vanilla")
                     policy_loss_fn = get_policy_loss_fn(loss_mode)
                     if loss_mode == "vanilla":
